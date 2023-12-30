@@ -1,3 +1,3 @@
-module github.com/soicchi/interpreter
+module monkey
 
 go 1.22rc1
