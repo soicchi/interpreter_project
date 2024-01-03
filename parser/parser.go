@@ -45,7 +45,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	program.Statements = []ast.Statement{}
 
 	for p.currentToken.Type != token.EOF {
-		statement := p.parserLetStatement()
+		statement := p.parseStatement()
 		if statement != nil {
 			program.Statements = append(program.Statements, statement)
 		}
@@ -53,6 +53,17 @@ func (p *Parser) ParseProgram() *ast.Program {
 	}
 
 	return program
+}
+
+func (p *Parser) parseStatement() ast.Statement {
+	switch p.currentToken.Type {
+	case token.LET:
+		return p.parserLetStatement()
+	case token.RETURN:
+		return p.parserReturnStatement()
+	default:
+		return nil
+	}
 }
 
 func (p *Parser) parserLetStatement() *ast.LetStatement {
@@ -90,4 +101,16 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 	}
 	p.peekError(t)
 	return false
+}
+
+func (p *Parser) parserReturnStatement() *ast.ReturnStatement {
+	statement := &ast.ReturnStatement{Token: p.currentToken}
+
+	p.nextToken()
+
+	for !p.isCurrentToken(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return statement
 }
