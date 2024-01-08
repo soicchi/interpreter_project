@@ -75,6 +75,35 @@ return 993322;
 	}
 }
 
+func TestIdentifierExpression(t *testing.T) {
+	input := "foobar;"
+
+	lexer := lexer.New(input)
+	parser := New(lexer)
+	program := parser.ParseProgram()
+	checkParserErrors(t, parser)
+
+	statementLength := 1
+	if len(program.Statements) != statementLength {
+		t.Fatalf("program has not enough statements. got=%d", len(program.Statements))
+	}
+	statement, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T", program.Statements[0])
+	}
+
+	identifier, ok := statement.Expression.(*ast.Identifier)
+	if !ok {
+		t.Fatalf("expression not *ast.Identifier. got=%T", statement.Expression)
+	}
+	if identifier.Value != "foobar" {
+		t.Errorf("identifier.Value not %s. got=%s", "foobar", identifier.Value)
+	}
+	if identifier.TokenLiteral() != "foobar" {
+		t.Errorf("identifier.TokenLiteral not %s, got=%s", "foobar", identifier.TokenLiteral())
+	}
+}
+
 func testLetStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != token.LET {
 		t.Errorf("s.TokenLiteral not 'let'. got=%q", s.TokenLiteral())
